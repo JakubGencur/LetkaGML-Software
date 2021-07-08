@@ -20,25 +20,40 @@
 
 #define FREQ 434.000
 
-// SX1278 has the following connections:
-// NSS pin:   10
-// DIO0 pin:  2
+// RFM69HW  has the following connections:
+// NSS pin:   33
+// DIO0 pin:  9
+// RESET pin: RADIOLIB_NC
 
 RF69 radio = new Module(33, 9, RADIOLIB_NC);
-
-
 
 // create Morse client instance using the FSK module
 MorseClient morse(&radio);
 
 void setup() {
+  
+  // set up serial comm
   Serial3.swap(1);
-  Serial3.begin(9600);
+  Serial3.begin(115200);
+
+  // init radio
   SPI.pins(30, 31, 32, 33);
   // initialize RFM69 with default settings
   Serial3.print(F("[RFM69] Initializing ... "));
   int state = radio.begin();
 
+  if (state == ERR_NONE) {
+    Serial3.println(F("success!"));
+  } else {
+    Serial3.print(F("failed, code "));
+    Serial3.println(state);
+    while (true);
+  }
+
+  // radio output power
+  // only for RFM69HW!
+  Serial3.print(F("[RF69] Setting high power module ... "));
+  state = radio.setOutputPower(20, true);
   if (state == ERR_NONE) {
     Serial3.println(F("success!"));
   } else {

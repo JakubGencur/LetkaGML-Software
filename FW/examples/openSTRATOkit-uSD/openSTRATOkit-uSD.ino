@@ -13,17 +13,16 @@
 File myFile;
 
 void setup() {
-  // Open Serial3 communications and wait for port to open:
+  // set up serial comm
   Serial3.pins(12, 13);
   Serial3.begin(115200);
-  //pinMode(33,OUTPUT);
-  
-  SPI.pins(30, 31, 32, 33);
-  
-  digitalWrite(33,1);
 
+  // set up SPI
+  SPI.pins(30, 31, 32, 33);
+  digitalWrite(33,1);
   Serial3.print("Initializing SD card...");
 
+  // init SD card
   if (!SD.begin(10)) {
     Serial3.println("initialization failed!");
     return;
@@ -66,5 +65,3 @@ void setup() {
 void loop() {
   // nothing happens after setup
 }
-
-

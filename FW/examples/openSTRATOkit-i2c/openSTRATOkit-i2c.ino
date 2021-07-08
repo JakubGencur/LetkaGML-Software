@@ -3,12 +3,10 @@
 
    @DevOK1RAJ Team, code by OK1CDJ 12/2020 
     
-   This example sends try to find I2C Devices on connected to the KIT
+   This example tries to find I2C Devices on connected to the KIT
 */
 
-
 #include <Wire.h>
-
 
 void setup()
 {
@@ -58,5 +56,5 @@ void loop()
   else
     Serial3.println("done\n");
 
-  delay(5000);           // wait 5 seconds for next scan
+  delay(5000); // wait 5 seconds for next scan
 }
