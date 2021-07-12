@@ -3,6 +3,8 @@
 
   @DevOK1RAJ Team, code by OK1CDJ 3/2021
 
+  code improved by Letka GML (added code some others sensors)
+
   low ("space") frequency:     434.69 MHz
   frequency shift:             610 Hz
   baud rate:                   300 baud
@@ -37,7 +39,7 @@
 //mpu9250  (accelerometer, gyroscope, magnetometr)
 #include "MPU9250.h"
 
-//UVA, UVB
+//ml8511  (uva, uvb)
 
 //################end#################
 
@@ -52,33 +54,43 @@ String call = "N0CALL"; // CHANGE THIS!
 long pkt_num = 1; // packet number
 float batt_voltage;
 
+// create File variable for SD card
 File myFile;
 
+// create radio module variable
 RF69 radio = new Module(33, 9, RADIOLIB_NC);
 
 // create RTTY client instance using the FSK module
 RTTYClient rtty(&radio);
 
+// create gps clien
 TinyGPSPlus gps;
 
+// create barometric sensor client
 Adafruit_BME280 bme;
 
 //###Letka###
+
+// create CO2 sensor client
 Adafruit_CCS811 co2senzor;
 
+// create megnetometer/accelerometer/gyroscope client
 MPU9250 ac_gy_mag(Wire,0x68);
+
 int status;
 
+//create temperature client and initialize Adress variable (DevAdr)
 OneWire Bus(BUS_PIN);
 DallasTemperature Temperature(&Bus);
 DeviceAddress DevAdr;
+
 //####end####
 
 void(* resetFunc) (void) = 0; //declare reset function @ address 0
 
 void setup() {
 
-  // init serial comm
+  // init serial comm  (Serial1 = gps module, Serial3 = usb)
   Serial3.pins(12, 13);
   Serial3.begin(115200);
   Serial1.pins(18, 19);
@@ -96,7 +108,7 @@ void setup() {
   SPI.pins(30, 31, 32, 33);
   int state = radio.begin();
 
-  // check for errors
+  // check for errors (caused in radio init)
   if (state == ERR_NONE) {
     Serial3.println(F("success!"));
   } else {
@@ -136,8 +148,6 @@ void setup() {
   delay(500);
   setGps_MaxPerformanceMode();
   delay(500); 
-
-  SPI.pins(30, 31, 32, 33);
   
   digitalWrite(33,1);
 
@@ -151,23 +161,28 @@ void setup() {
   
   //Dallas:
   Serial3.print("[Dallas(temperature)] Initializing Dallas senzors...");
-  Temperature.begin(10)
+  Temperature.begin(10);
+  nSensorsTemperature = Temperature.getDeviceCount();
+  Serial3.println(F("success!"));
   
   //ccs811:
+  Serial3.println("[CCS811(CO2)] Initializing CCS811 senzor...");
   if(!co2senzor.begin()){
-    Serial3.println("[CCS811(CO2)] Initializing CCS811 senzor...");
     while(1);
-  }
+  } else Serial3.println(F("success!"));
   
   //MPU9250:
+  Serial3.println("[MPU9250(ac, gy, mag)] Initializing MPU9250 senzor...");
   if(!ac_gy_mag.begin()){
-    Serial3.println("[MPU9250(ac, gy, mag)] Initializing MPU9250 senzor...");
     while(1);
-  }
+  } else Serial3.println(F("success!"));
   
-  //UVA/UVB:
+  
+  //ML8511:
+  Serial3.println("[ML8511(UVA/UVB)] Initializing ML8511 senzor...");
   pinMode(A0, INPUT);
   pinMode(A1, INPUT);
+  Serial3.println(F("success!"));
   
   //#######################end#######################
 }
@@ -247,27 +262,27 @@ void sendData() {
         datastring_Letka += "n,n";
       }
     }
-    IMU.readSensor();
+    ac_gy_mag.readSensor();
     // display the data
-    datastring_Letka += String(IMU.getAccelX_mss());
+    datastring_Letka += String(ac_gy_mag.getAccelX_mss());
     datastring_Letka += ",";
-    datastring_Letka += String(IMU.getAccelY_mss());
+    datastring_Letka += String(ac_gy_mag.getAccelY_mss());
     datastring_Letka += ",";
-    datastring_Letka += String(IMU.getAccelZ_mss());
+    datastring_Letka += String(ac_gy_mag.getAccelZ_mss());
     datastring_Letka += ",";
-    datastring_Letka += String(IMU.getGyroX_rads());
+    datastring_Letka += String(ac_gy_mag.getGyroX_rads());
     datastring_Letka += ",";
-    datastring_Letka += String(IMU.getGyroY_rads());
+    datastring_Letka += String(ac_gy_mag.getGyroY_rads());
     datastring_Letka += ",";
-    datastring_Letka += String(IMU.getGyroZ_rads());
+    datastring_Letka += String(ac_gy_mag.getGyroZ_rads());
     datastring_Letka += ",";
-    datastring_Letka += String(IMU.getMagX_uT());
+    datastring_Letka += String(ac_gy_mag.getMagX_uT());
     datastring_Letka += ",";
-    datastring_Letka += String(IMU.getMagY_uT());
+    datastring_Letka += String(ac_gy_mag.getMagY_uT());
     datastring_Letka += ",";
-    datastring_Letka += String(IMU.getMagZ_uT());
+    datastring_Letka += String(ac_gy_mag.getMagZ_uT());
     datastring_Letka += ",";
-    datastring_Letka += String(IMU.getTemperature_C());
+    datastring_Letka += String(ac_gy_mag.getTemperature_C());
     
     datastring_Letka += ",";
     datastring_Letka += String(getUV());
