@@ -14,9 +14,6 @@ DeviceAddress DevAdr;
 
 uint8_t nSensors = 0;
 
-void printAddress(DeviceAddress devAdr, uint8_t idx);
-void getTemp();
-
 void printAddress(DeviceAddress devAdr, uint8_t idx)
 {
   Serial.print("Adresa senzoru ");
