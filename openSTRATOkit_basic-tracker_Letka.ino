@@ -3,7 +3,7 @@
 
   @DevOK1RAJ Team, code by OK1CDJ 3/2021
 
-  code improved by Letka GML (added code some others sensors)
+  code improved by Letka GML (added code for some others sensors)
 
   low ("space") frequency:     434.69 MHz
   frequency shift:             610 Hz
