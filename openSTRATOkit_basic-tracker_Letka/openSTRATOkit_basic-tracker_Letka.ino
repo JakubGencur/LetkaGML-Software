@@ -36,8 +36,10 @@
 //ccs811 (CO2)       https://joy-it.net/en/products/SEN-CCS811V1
 #include "Adafruit_CCS811.h"
 
+/*may be used on raspberry
 //mpu9250  (accelerometer, gyroscope, magnetometr)
 #include "MPU9250.h"
+*/
 
 //ml8511  (uva, uvb)
 
@@ -74,8 +76,10 @@ Adafruit_BME280 bme;
 // create CO2 sensor client
 Adafruit_CCS811 co2senzor;
 
+/*may be used on raspberry
 // create megnetometer/accelerometer/gyroscope client
 MPU9250 ac_gy_mag(Wire, 0x68);
+*/
 
 int status;
 
@@ -161,7 +165,7 @@ void setup() {
   //###########Letka's senzors initialization:#######
   
   //Dallas:
-  Serial3.print("[Dallas(temperature)] Initializing Dallas senzors...");
+  Serial3.print("[Dallas(temperature)] Initializing Dallas senzors... ");
   Temperature.begin();
   nSensorsTemperature = Temperature.getDeviceCount();
   Serial3.print(nSensorsTemperature);
@@ -174,16 +178,17 @@ void setup() {
   
   //ccs811:
   Serial3.println("[CCS811(CO2)] Initializing CCS811 senzor...");
-  if(!co2senzor.begin()){
-    while(1);
-  } else Serial3.println(F("success!"));
+  /*if(!co2senzor.begin()){			//ZEPTAT SE NA NEZBYTNOST ČEKAT NA INICIALIZACI
+    while(!co2senzor.begin());
+  } else */Serial3.println(F("success!"));
   
+/*may be used on raspberry  
   //MPU9250:
   Serial3.println("[MPU9250(ac, gy, mag)] Initializing MPU9250 senzor...");
   if(!ac_gy_mag.begin()){
     while(1);
   } else Serial3.println(F("success!"));
-  
+*/
   
   //ML8511:
   Serial3.println("[ML8511(UVA/UVB)] Initializing ML8511 senzor...");
@@ -251,11 +256,9 @@ void sendData() {
     datastring += String(bme.readPressure(), 0) + ",";     // pressure
     datastring += String(gps.satellites.value());         // sats
     String datastring_Letka = datastring;
-    datastring_Letka += ", temps: ";
+    datastring_Letka += ",";
     Temperature.requestTemperatures();
     for (uint8_t i = 0; i < nSensorsTemperature; i++){
-      //datastring_Letka += String(i + 1);
-      //datastring_Letka += ":";
       datastring_Letka += String(Temperature.getTempCByIndex(i)) + ",";
     }
     if(co2senzor.available()){
@@ -269,6 +272,8 @@ void sendData() {
         datastring_Letka += "n,n,";
       }
     }
+    
+/*may be used on raspberry:
     ac_gy_mag.readSensor();
     // display the data
     datastring_Letka += String(ac_gy_mag.getAccelX_mss());
@@ -291,6 +296,7 @@ void sendData() {
     datastring_Letka += ",";
     datastring_Letka += String(ac_gy_mag.getTemperature_C());
     datastring_Letka += ",";
+*/
     
     datastring_Letka += String(getUV());
 
@@ -466,7 +472,7 @@ boolean getUBX_ACK(uint8_t *MSG) {
       else {
         ackByteID = 0;  // Reset and look again, invalid order
       }
-
+      
     }
   }
 }
