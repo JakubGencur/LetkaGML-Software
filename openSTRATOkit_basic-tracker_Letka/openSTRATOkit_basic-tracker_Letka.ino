@@ -178,9 +178,9 @@ void setup() {
   
   //ccs811:
   Serial3.println("[CCS811(CO2)] Initializing CCS811 senzor...");
-  /*if(!co2senzor.begin()){			//ZEPTAT SE NA NEZBYTNOST ČEKAT NA INICIALIZACI
+  if(!co2senzor.begin()){			//ZEPTAT SE NA NEZBYTNOST ČEKAT NA INICIALIZACI
     while(!co2senzor.begin());
-  } else */Serial3.println(F("success!"));
+  } else Serial3.println(F("success!"));
   
 /*may be used on raspberry  
   //MPU9250:
