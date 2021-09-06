@@ -52,7 +52,7 @@
 #define ENC ASCII
 #define STOPB 2
 
-String call = "TTS10"; // CHANGE THIS!
+String call = "TTS10"; // Letka's call
 long pkt_num = 1; // packet number
 float batt_voltage;
 
@@ -65,13 +65,15 @@ RF69 radio = new Module(33, 9, RADIOLIB_NC);
 // create RTTY client instance using the FSK module
 RTTYClient rtty(&radio);
 
+int status;
+
 // create gps clien
 TinyGPSPlus gps;
 
 // create barometric sensor client
 Adafruit_BME280 bme;
 
-//###Letka###
+//###############Letka################
 
 // create CO2 sensor client
 Adafruit_CCS811 co2senzor;
@@ -81,15 +83,13 @@ Adafruit_CCS811 co2senzor;
 MPU9250 ac_gy_mag(Wire, 0x68);
 */
 
-int status;
-
 //create temperature client and initialize Adress variable (DevAdr)
 uint8_t nSensorsTemperature;
 OneWire Bus(11);
 DallasTemperature Temperature(&Bus);
 DeviceAddress DevAdr;
 
-//####end####
+//################end#################
 
 void(* resetFunc) (void) = 0; //declare reset function @ address 0
 
@@ -157,7 +157,7 @@ void setup() {
   digitalWrite(33,1);
 
   // init SD card
-  Serial3.print("[SD] Initializing SD card...");
+  Serial3.print("[SD] Initializing SD card ... ");
   if (!SD.begin(10)) {
     Serial3.println("initialization failed!");
   } else Serial3.println(F("success!"));
@@ -165,7 +165,7 @@ void setup() {
   //###########Letka's senzors initialization:#######
   
   //Dallas:
-  Serial3.print("[Dallas(temperature)] Initializing Dallas senzors... ");
+  Serial3.print("[Dallas(temperature)] Initializing Dallas senzors ... ");
   Temperature.begin();
   nSensorsTemperature = Temperature.getDeviceCount();
   Serial3.print(nSensorsTemperature);
@@ -177,7 +177,7 @@ void setup() {
   Serial3.println(F("success!"));
   
   //ccs811:
-  Serial3.println("[CCS811(CO2)] Initializing CCS811 senzor...");
+  Serial3.println("[CCS811(CO2)] Initializing CCS811 senzor ... ");
   if(!co2senzor.begin()){			//ZEPTAT SE NA NEZBYTNOST ČEKAT NA INICIALIZACI
     while(!co2senzor.begin());
   } else Serial3.println(F("success!"));
@@ -191,7 +191,7 @@ void setup() {
 */
   
   //ML8511:
-  Serial3.println("[ML8511(UVA/UVB)] Initializing ML8511 senzor...");
+  Serial3.println("[ML8511(UVA/UVB)] Initializing ML8511 senzor ... ");
   pinMode(A0, INPUT);
   pinMode(A1, INPUT);
   Serial3.println(F("success!"));
