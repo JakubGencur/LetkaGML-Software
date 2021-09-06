@@ -472,7 +472,6 @@ boolean getUBX_ACK(uint8_t *MSG) {
       else {
         ackByteID = 0;  // Reset and look again, invalid order
       }
-      
     }
   }
 }
