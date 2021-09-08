@@ -58,6 +58,7 @@ float batt_voltage;
 
 // create File variable for SD card
 File myFile;
+File init;
 
 // create radio module variable
 RF69 radio = new Module(33, 9, RADIOLIB_NC);
@@ -179,7 +180,8 @@ void setup() {
   //ccs811:
   Serial3.println("[CCS811(CO2)] Initializing CCS811 senzor ... ");
   if(!co2senzor.begin()){			//ZEPTAT SE NA NEZBYTNOST ČEKAT NA INICIALIZACI
-    while(!co2senzor.begin());
+	int startTime = millis();
+    while(!co2senzor.begin() && (millis()-startTime<5000));
   } else Serial3.println(F("success!"));
   
 /*may be used on raspberry  
