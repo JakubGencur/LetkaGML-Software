@@ -90,11 +90,16 @@ OneWire Bus(11);
 DallasTemperature Temperature(&Bus);
 DeviceAddress DevAdr;
 
+//pin for Led diode
+#define LEDPIN 13
+
 //################end#################
 
 void(* resetFunc) (void) = 0; //declare reset function @ address 0
 
 void setup() {
+	// setup LEDPIN as output
+	pinMode(LEDPIN, OUTPUT);
 
 	// init serial comm	(Serial1 = gps module, Serial3 = usb)
 	Serial3.pins(12, 13);
@@ -103,38 +108,49 @@ void setup() {
 	Serial1.begin(9600);
 	Serial3.println("openSTRATOtracker");
 	Serial3.println();
+	blink(0)
 
 	// init and check for BME280
 	if(!bme.begin(0x76)){
 		Serial3.print("[BME280], no BME280 detected...");
-	} else Serial3.println("[BME280] found...");
+		blink(1);
+	} else{ 
+		Serial3.println("[BME280] found...");
+		blink(0);}
 	
 	// init radio
 	Serial3.print(F("[RF69] Initializing ... "));
 	SPI.pins(30, 31, 32, 33);
 	int state = radio.begin();
+	
 
 	// check for errors (caused in radio init)
 	if (state == ERR_NONE) {
 		Serial3.println(F("success!"));
+		blink(0);
 	} else {
-		Serial3.print(F("failed, code "));
-		Serial3.println(state);
-		resetFunc();	
-		while (true);
+		int startTime = millis().
+		while (millis()-startTime < 5000){
+			Serial3.print(F("failed, code "));
+			Serial3.println(state);
+			resetFunc();}	
+		blink(1);
 	}
 
 	// radio output power
 	Serial3.print(F("[RF69] Setting high power module ... "));
-		state = radio.setOutputPower(20, true);
-		if (state == ERR_NONE) {
-			Serial3.println(F("success!"));
-		} else {
+	state = radio.setOutputPower(20, true);
+	if (state == ERR_NONE) {
+		Serial3.println(F("success!"));
+		blink(0);
+	} else {
+		int startTime = millis().
+		while (millis()-startTime < 5000){
 			Serial3.print(F("failed, code "));
 			Serial3.println(state);
-			resetFunc();	
-			while (true);
-		}
+			resetFunc();}	
+		blink(1);
+	}
 
 	// set-up rtty comm
 	Serial3.print(F("[RTTY] Initializing ... "));
@@ -142,10 +158,12 @@ void setup() {
 	if (state == ERR_NONE) {
 		Serial3.println(F("success!"));
 	} else {
-		Serial3.print(F("failed, code "));
-		resetFunc();			
-		Serial3.println(state);
-		while (true);
+		int startTime = millis().
+		while (millis()-startTime < 5000){
+			Serial3.print(F("failed, code "));
+			Serial3.println(state);
+			resetFunc();}	
+		blink(1);
 	}
 
 	// set-up GPS
@@ -161,7 +179,11 @@ void setup() {
 	Serial3.print("[SD] Initializing SD card ... ");
 	if (!SD.begin(10)) {
 		Serial3.println("initialization failed!");
-	} else Serial3.println(F("success!"));
+		blink(1)
+	} else{
+		Serial3.println(F("success!"));
+		blink(0);
+	}
 	
 	//###########Letka's senzors initialization:#######
 	
@@ -176,15 +198,19 @@ void setup() {
 		Temperature.getAddress(DevAdr, i);
 	}
 	Serial3.println(F("success!"));
+	blink(0);
 	
 	//ccs811:
 	Serial3.println("[CCS811(CO2)] Initializing CCS811 senzor ... ");
 	if(!co2senzor.begin()){			//ZEPTAT SE NA NEZBYTNOST ČEKAT NA INICIALIZACI
 	int startTime = millis();
 		while(!co2senzor.begin() && (millis()-startTime<5000));
-	} else Serial3.println(F("success!"));
+	 else{
+		Serial3.println(F("success!"));
+		blink(0);
+	}
 	
-/*may be used on raspberry	
+/*won't be used on Arduino	
 	//MPU9250:
 	Serial3.println("[MPU9250(ac, gy, mag)] Initializing MPU9250 senzor...");
 	if(!ac_gy_mag.begin()){
@@ -197,6 +223,7 @@ void setup() {
 	pinMode(A0, INPUT);
 	pinMode(A1, INPUT);
 	Serial3.println(F("success!"));
+	blink(0);
 	
 	//TODO: Zápis inicializace senzorů na SD kartu (init_Log)
 	
@@ -510,4 +537,10 @@ int manalogRead(int pin){
 	}
 	v/=8;
 	return v;
+}
+void blink(bool long){
+	digitalWrite(LEDPIN, HIGH);
+	delay(long ? 250 : 750);
+	digitalWrite(LEDPIN, LOW);
+	delay(250);
 }
