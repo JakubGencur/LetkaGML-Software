@@ -58,7 +58,7 @@ long pkt_num2 = 1
 float batt_voltage;
 
 // create File variable for SD card
-File rtty_Log;
+File myFile;
 
 // create radio module variable
 RF69 radio = new Module(33, 9, RADIOLIB_NC);
@@ -98,6 +98,7 @@ DeviceAddress DevAdr;
 void(* resetFunc) (void) = 0; //declare reset function @ address 0
 
 void setup() {
+	myFile = SD.open(File, FILE_WRITE);
 	// setup LEDPIN as output
 	pinMode(LEDPIN, OUTPUT);
 
@@ -229,7 +230,7 @@ void setup() {
 	
 	//#######################end#######################
 	//TODO: Led 12 blika, kdyz se senzory uspesne inicializovali
-	
+	myFile.close();
 }
 
 void loop() {
@@ -262,20 +263,7 @@ void sendData() {
 		datastring += String(pkt_num) + ","; // Packet number
 
 		// GPS time
-		if (gps.time.hour() < 10)
-			datastring += "0" + String(gps.time.hour()) + ":";
-		else
-			datastring += String(gps.time.hour()) + ":";
-	
-		if (gps.time.minute() < 10)
-			datastring += "0" + String(gps.time.minute()) + ":";
-		else
-			datastring += String(gps.time.minute()) + ":";
-
-		if (gps.time.second() < 10)
-			datastring += "0" + String(gps.time.second()) + ",";
-		else
-			datastring += String(gps.time.second()) + ",";
+		datastring += GPS_getTime(gps);
 
 		datastring += String(gps.location.lat(), 6) + ",";		// lat
 		datastring += String(gps.location.lng(), 6) + ",";		// long
@@ -306,11 +294,15 @@ void sendData() {
 		rtty.println(datastring);
 
 		Serial3.println(F("[RTTY] Done!"));
-		writeData(datastring_Letka); // write a copy to the SD card
+		writeData(datastring_Letka, "data.txt"); // write a copy to the SD card
 		pkt_num++; //advance packet number
 	}
 	String datastring_Letka;
+	datastring_Letka += pkt_num2;
 	datastring_Letka += ",";
+	datastring_Letka += pkt_num;
+	datastring_Letka += ",";
+	datastring_Letka += GPS_getTime(gps);
 	Temperature.requestTemperatures();
 	for (uint8_t i = 0; i < nSensorsTemperature; i++){
 		datastring_Letka += String(Temperature.getTempCByIndex(i)) + ",";
@@ -328,6 +320,11 @@ void sendData() {
 	}
 		
 	datastring_Letka += String(getUV());
+	
+	writeData("data_Letka.txt", datastring_Letka)
+	
+	pkt_num2++;
+	
 	
 /*may be used on raspberry:
 	ac_gy_mag.readSensor();
@@ -358,11 +355,9 @@ void sendData() {
 
 // write data to the SD card
 
-SDSerialPrint(String file, String message){
-	myFile = SD.open(file, message);
-	 if (myFile) {
-		myFile.println(message);
-		myFile.close();
+SDSerialPrint(File ourFile, String message){
+	if (ourFile) {
+		ourFile.println(message);
 	} else {
 		// if the file didn't open, print an error:
 		Serial3.println("error opening file");
@@ -370,16 +365,18 @@ SDSerialPrint(String file, String message){
 	Serial3.println(message);
 }
 
-void writeData(String Str) {
-	 myFile = SD.open("data.txt", FILE_WRITE);
+void writeData(String Str, String File) {
+	 myFile = SD.open(File, FILE_WRITE);
 	 if (myFile) {
-		Serial3.print("[SD] Writing to data.txt...");
+		Serial3.print("[SD] Writing to ");
+		Serial3.println(File);
 		myFile.println(Str);
 		myFile.close();
 		Serial3.println("done.");
 	} else {
 		// if the file didn't open, print an error:
-		Serial3.println("error opening data.txt");
+		Serial3.print("error opening ");
+		Serial3.println(File);
 	}
 }
 
@@ -543,4 +540,22 @@ void blink(bool long){
 	delay(long ? 250 : 750);
 	digitalWrite(LEDPIN, LOW);
 	delay(250);
+}
+
+String GPS_getTime(TinyGPSPlus g){
+	String retString[12];
+	if (g.time.hour() < 10)
+		retString += "0" + String(g.time.hour()) + ":";
+	else
+		retString += String(g.time.hour()) + ":";
+	
+	if (g.time.minute() < 10)
+		retString += "0" + String(g.time.minute()) + ":";
+	else
+		retString += String(g.time.minute()) + ":";
+
+	if (g.time.second() < 10)
+		retString += "0" + String(g.time.second()) + ",";
+	else
+		retString += String(g.time.second()) + ",";
 }
