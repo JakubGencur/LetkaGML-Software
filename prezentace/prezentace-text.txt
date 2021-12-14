@@ -1,0 +1,19 @@
+Arduino:
+- jedná se o vývojovou destičku - velmi jednoduchý počítač
+- pracuje se s ním pomocí vývojového prostředí z počítače
+- základem programu Arduina jsou dvě části (funkce):
+	1) setup - proběhne jednou, na začátku
+	2) loop(smyčka) - spustí se po setupu a potom se neustále opakuje
+
+Odbornější informace:
+- každý program má na začátku seznam knihoven
+- poté obsahuje definice globálních proměnných
+- dále jsou zde definovány funkce
+- samotný program je napsán v jednotlivých funkcích
+
+Slovníček:
+- knihovna = program, který obsahuje časté funkce nebo proměnné a programátor je potom nemusí přepisovat do každého programu
+- proměnná - pojmenované místo na paměti - umožňuje ukládat si do nich mezidata
+	- globální proměnná = je platná v celém kódu
+	- lokální proměnná = platná pouze ve funkci, kde je definována
+- funkce - pojmenovaná část programu, umožňuje volat program vícekrát, aniž bychom ho museli celý přepisovat
