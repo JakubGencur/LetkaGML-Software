@@ -14,10 +14,10 @@
 //define pin numbers:
 #define BUZZER_PIN 13
 #define LOCK_PIN 12
-#define BUTTON 11
+#define BUTTON_PIN 16
 
 //define some usefull values:
-#define MAX_ACC 13
+#define MAX_ACC 20
 #define MIN_ACC 5
 #define TIME_AFTER_START 30000
 
@@ -53,11 +53,24 @@ void setup(void) {
   // esp don't need to wait
   //while (!Serial)
   //delay(10); // will pause Zero, Leonardo, etc until serial console opens
+  
+  digitalWrite(BUZZER_PIN, HIGH);
+  delay(100);
+  digitalWrite(BUZZER_PIN, LOW);
+  delay(100);
+  digitalWrite(BUZZER_PIN, HIGH);
+  delay(500);
+  digitalWrite(BUZZER_PIN, LOW);
+  delay(100);
+  digitalWrite(BUZZER_PIN, HIGH);
+  delay(100);
+  digitalWrite(BUZZER_PIN, LOW);
+  delay(100);
 
   Serial.println("Letka GML rocket");
 
   // open the lock of the rocket parachute
-  digitalWrite(LOCK_PIN, HIGH)
+  digitalWrite(LOCK_PIN, HIGH);
 
   // initialize i2c pins - necessary for ESP
   I2CSensors.begin(I2C_SDA, I2C_SCL, 100000);
@@ -65,24 +78,65 @@ void setup(void) {
   // Try to initialize! For ESP we need to specify address and which I2C pins we will use
   if (!mpu.begin(0x68, &I2CSensors)) {
     Serial.println("Failed to find MPU6050 chip");
+    digitalWrite(BUZZER_PIN, HIGH);
+    delay(500);
+    digitalWrite(BUZZER_PIN, LOW);
+    delay(100);
+  }
+  else{
+    Serial.println("MPU6050 Found!");
+    digitalWrite(BUZZER_PIN, HIGH);
+    delay(100);
+    digitalWrite(BUZZER_PIN, LOW);
+    delay(100);
   }
 
+  /*
   if (!bme.begin(0x76, &I2CSensors)) {
     Serial.println(F("Could not find a valid BME280 sensor, check wiring!"));
+    digitalWrite(BUZZER_PIN, HIGH);
+    delay(500);
+    digitalWrite(BUZZER_PIN, LOW);
+    delay(100);
   }
+  else{
+    Serial.println("BME280 Found!");
+    digitalWrite(BUZZER_PIN, HIGH);
+    delay(100);
+    digitalWrite(BUZZER_PIN, LOW);
+    delay(100);
+  }
+  */
   
-  Serial.println("MPU6050 Found!");
 
   // this code will read and set ranges - unnecessary:
   mpu.setAccelerometerRange(MPU6050_RANGE_8_G);
 
+  digitalWrite(BUZZER_PIN, HIGH);
+  delay(100);
+  digitalWrite(BUZZER_PIN, LOW);
+  delay(100);
+  digitalWrite(BUZZER_PIN, HIGH);
+  delay(500);
+  digitalWrite(BUZZER_PIN, LOW);
+  delay(100);
+  digitalWrite(BUZZER_PIN, HIGH);
+  delay(100);
+  digitalWrite(BUZZER_PIN, LOW);
+  delay(100);
+
+  
   // wait for press the button:
-  while(!digitalRead(BUTTON_PIN)){
+  while(digitalRead(BUTTON_PIN)){
     delay(10);
   }
+  digitalWrite(BUZZER_PIN, HIGH);
+  delay(100);
+  digitalWrite(BUZZER_PIN, LOW);
+  delay(100);
   
   // lock the rocket:
-  digitalWrite(pinMode(LOCK_PIN, LOW))
+  digitalWrite(LOCK_PIN, LOW);
   /*Serial.print("Accelerometer range set to: ");
   switch (mpu.getAccelerometerRange()) {
   case MPU6050_RANGE_2_G:
@@ -105,9 +159,11 @@ void loop() {
   /* Get new sensor events with the readings */
   sensors_event_t a, g, t_a, t, p, h;
   mpu.getEvent(&a, &g, &t_a);
+  /*
   bme_temp->getEvent(&t);
   bme_pressure->getEvent(&p);
   bme_humidity->getEvent(&h);
+  */
   float total = 0.0; //variable for compute abslute value of acceleration
   
   // compute the squares and add them to total
@@ -123,8 +179,8 @@ void loop() {
   Serial.print(total);
   Serial.println("m/s-2");
 
-  Serial.print("\t\tTemperature ");
-  Serial.print(temp.temperature);
+  Serial.print("\Temperature ");
+  Serial.print(t_a.temperature);
   Serial.println(" *C");
 
   // Display the results (acceleration is measured in m/s^2)
@@ -148,7 +204,8 @@ void loop() {
   Serial.print("Gyroscope z = ");
   Serial.print(g.gyro.z);
   Serial.println(" radians/s ");
-  
+
+  /*
   Serial.print(F("Temperature = "));
   Serial.print(t.temperature);
   Serial.println(" *C");
@@ -160,7 +217,7 @@ void loop() {
   Serial.print(F("Pressure = "));
   Serial.print(pressure_event.pressure);
   Serial.println(" hPa");
-
+  */
   Serial.println();
 
   // when the values are under/above the normal (start or fall of the rocket) it start to
@@ -176,7 +233,7 @@ void loop() {
     digitalWrite(BUZZER_PIN, HIGH);
     Serial.println("Parachute opened!");
   }*/
-  if(millis()-start>TIME_AFTER_START && !timeOver){
+  if(millis()-start>TIME_AFTER_START && !timeOver && start){
     timeOver = 1;
     digitalWrite(LOCK_PIN, HIGH);
     digitalWrite(BUZZER_PIN, HIGH);
