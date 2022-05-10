@@ -7,6 +7,9 @@
 #include <Adafruit_MPU6050.h>
 #include <Adafruit_Sensor.h>
 
+// servo motor library
+#include <ESP32Servo.h>
+
 // i2c and math library
 #include <Wire.h>
 #include <Math.h>
@@ -20,6 +23,8 @@
 #define MAX_ACC 20
 #define MIN_ACC 5
 #define TIME_AFTER_START 30000
+#define LOCK_ANGLE 0
+#define UNLOCK_ANGLE 90
 
 // -----------------I2C-----------------
 // this needs to be defined because of esp
@@ -38,6 +43,9 @@ Adafruit_Sensor *bme_pressure = bme.getPressureSensor();
 Adafruit_Sensor *bme_humidity = bme.getHumiditySensor();
 */
 
+// structore for servo
+Servo servo;
+
 // create variables for time measurment
 int start = 0;
 int wasLess = 0;
@@ -47,7 +55,7 @@ void setup(void) {
   // pin 12 and 13 will serve to throw the parachute from rocket
   pinMode(BUZZER_PIN, OUTPUT);
   pinMode(LOCK_PIN, OUTPUT);
-  pinMode(LOCK_PIN, INPUT_PULLUP);
+  pinMode(BUTTON_PIN, INPUT_PULLUP);
   Serial.begin(115200);
   
   // esp don't need to wait
@@ -68,9 +76,6 @@ void setup(void) {
   delay(100);
 
   Serial.println("Letka GML rocket");
-
-  // open the lock of the rocket parachute
-  digitalWrite(LOCK_PIN, HIGH);
 
   // initialize i2c pins - necessary for ESP
   I2CSensors.begin(I2C_SDA, I2C_SCL, 100000);
@@ -107,7 +112,26 @@ void setup(void) {
     delay(100);
   }
   */
+
   
+  // initialize servo
+  if (!servo.attach(LOCK_PIN)) {
+    Serial.println(F("Could not find a valid servo, check wiring!"));
+    digitalWrite(BUZZER_PIN, HIGH);
+    delay(500);
+    digitalWrite(BUZZER_PIN, LOW);
+    delay(100);
+  }
+  else{
+    Serial.println("Servo Found!");
+    digitalWrite(BUZZER_PIN, HIGH);
+    delay(100);
+    digitalWrite(BUZZER_PIN, LOW);
+    delay(100);
+  }
+
+  // unlock rocket
+  servo.write(UNLOCK_ANGLE);
 
   // this code will read and set ranges - unnecessary:
   mpu.setAccelerometerRange(MPU6050_RANGE_8_G);
@@ -136,7 +160,7 @@ void setup(void) {
   delay(100);
   
   // lock the rocket:
-  digitalWrite(LOCK_PIN, LOW);
+  servo.write(LOCK_ANGLE);
   /*Serial.print("Accelerometer range set to: ");
   switch (mpu.getAccelerometerRange()) {
   case MPU6050_RANGE_2_G:
@@ -233,9 +257,11 @@ void loop() {
     digitalWrite(BUZZER_PIN, HIGH);
     Serial.println("Parachute opened!");
   }*/
+  // when counting off is done it set value timeOver to don't repeat this condition
+  // unlock the parashute and start the buzzer
   if(millis()-start>TIME_AFTER_START && !timeOver && start){
     timeOver = 1;
-    digitalWrite(LOCK_PIN, HIGH);
+    servo.write(UNLOCK_ANGLE);
     digitalWrite(BUZZER_PIN, HIGH);
     Serial.println("Parachute opened!");
   }
