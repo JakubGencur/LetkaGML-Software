@@ -1,3 +1,24 @@
+// This is Letka GML code for module to Czech Rocket Challenge:
+// Pinout:
+/*
+ ESP-pins:  modules pins
+ IO16       Button+
+ IO15       MPU-SCL             BME-SCL
+ IO14       MPU-SDA             BME-SDA
+ IO13       Buzzer+
+ IO12       Servo-data(yellow)
+ UOR        free cable or pin
+ UOT        free cable or pin
+ VCC        free cable or pin, or power supply
+ GND1       free cable or pin, or power supply
+ GND2       BUZZER-             BUTTON-     Servo-GND(brown)  BME-GND     MPU-GND
+ 5V         Servo-VCC(red)      BME-VCC     MPU-VCC
+
+ more about connection you can find in attached file on our github
+*/
+
+
+
 // some libraries for ESP32 cam:
 #include "Arduino.h"
 //#include "esp_camera.h"
