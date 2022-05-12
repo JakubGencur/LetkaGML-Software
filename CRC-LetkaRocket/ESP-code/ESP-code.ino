@@ -77,12 +77,25 @@ void setup(void) {
   pinMode(BUZZER_PIN, OUTPUT);
   pinMode(LOCK_PIN, OUTPUT);
   pinMode(BUTTON_PIN, INPUT_PULLUP);
+  ESP32PWM::allocateTimer(0);
+  ESP32PWM::allocateTimer(1);
+  ESP32PWM::allocateTimer(2);
+  ESP32PWM::allocateTimer(3);
   Serial.begin(115200);
   
   // esp don't need to wait
   //while (!Serial)
-  //delay(10); // will pause Zero, Leonardo, etc until serial console opens
+  //delay(10); // will pause Zero, Leonardo, etc until serial console open
   
+  //code for active buzzer, to control if esp is started and if it work properly
+  tone(BUZZER_PIN, 4186, 100);
+  delay(100);
+  tone(BUZZER_PIN, 4186, 500);
+  delay(100);
+  tone(BUZZER_PIN, 4186, 100);
+  delay(100);
+
+/* code for buzzer
   digitalWrite(BUZZER_PIN, HIGH);
   delay(100);
   digitalWrite(BUZZER_PIN, LOW);
@@ -95,6 +108,7 @@ void setup(void) {
   delay(100);
   digitalWrite(BUZZER_PIN, LOW);
   delay(100);
+ */
 
   Serial.println("Letka GML rocket");
 
@@ -104,29 +118,55 @@ void setup(void) {
   // Try to initialize! For ESP we need to specify address and which I2C pins we will use
   if (!mpu.begin(0x68, &I2CSensors)) {
     Serial.println("Failed to find MPU6050 chip");
+
+    //code for active buzzer
+    tone(BUZZER_PIN, 4186, 500);
+    delay(100);
+    
+    /*code for buzzer
     digitalWrite(BUZZER_PIN, HIGH);
     delay(500);
     digitalWrite(BUZZER_PIN, LOW);
     delay(100);
+    */
   }
   else{
     Serial.println("MPU6050 Found!");
+
+    //code for active buzzer
+    tone(BUZZER_PIN, 4186, 100);
+    delay(100);
+    
+    /*code for buzzer
     digitalWrite(BUZZER_PIN, HIGH);
     delay(100);
     digitalWrite(BUZZER_PIN, LOW);
     delay(100);
+    */
   }
 
   /*
   if (!bme.begin(0x76, &I2CSensors)) {
     Serial.println(F("Could not find a valid BME280 sensor, check wiring!"));
+
+    //code for active buzzer
+    tone(BUZZER_PIN, 4186, 500);
+    delay(100);
+    
+    /*code for buzzer
     digitalWrite(BUZZER_PIN, HIGH);
     delay(500);
     digitalWrite(BUZZER_PIN, LOW);
-    delay(100);
+    delay(100);//PRI ODKOMENTOVANI DOPSAT HVEZDALOMENO
   }
   else{
     Serial.println("BME280 Found!");
+
+    //code for active buzzer
+    tone(BUZZER_PIN, 4186, 100);
+    delay(100);
+    
+    /*code for buzzer
     digitalWrite(BUZZER_PIN, HIGH);
     delay(100);
     digitalWrite(BUZZER_PIN, LOW);
@@ -138,17 +178,31 @@ void setup(void) {
   // initialize servo
   if (!servo.attach(LOCK_PIN)) {
     Serial.println(F("Could not find a valid servo, check wiring!"));
+
+    //code for active buzzer
+    tone(BUZZER_PIN, 4186, 500);
+    delay(100);
+    
+    /*code for buzzer
     digitalWrite(BUZZER_PIN, HIGH);
     delay(500);
     digitalWrite(BUZZER_PIN, LOW);
     delay(100);
+    */
   }
   else{
     Serial.println("Servo Found!");
+
+    //code for active buzzer
+    tone(BUZZER_PIN, 4186, 100);
+    delay(100);
+    
+    /*code for buzzer
     digitalWrite(BUZZER_PIN, HIGH);
     delay(100);
     digitalWrite(BUZZER_PIN, LOW);
     delay(100);
+    */
   }
 
   // unlock rocket
@@ -157,6 +211,15 @@ void setup(void) {
   // this code will read and set ranges - unnecessary:
   mpu.setAccelerometerRange(MPU6050_RANGE_8_G);
 
+  //code for active buzzer
+  tone(BUZZER_PIN, 4186, 100);
+  delay(100);
+  tone(BUZZER_PIN, 4186, 500);
+  delay(100);
+  tone(BUZZER_PIN, 4186, 100);
+  delay(100);
+
+  /*code for passive buzzer
   digitalWrite(BUZZER_PIN, HIGH);
   delay(100);
   digitalWrite(BUZZER_PIN, LOW);
@@ -169,15 +232,13 @@ void setup(void) {
   delay(100);
   digitalWrite(BUZZER_PIN, LOW);
   delay(100);
-
+  */
   
   // wait for press the button:
   while(digitalRead(BUTTON_PIN)){
     delay(10);
   }
-  digitalWrite(BUZZER_PIN, HIGH);
-  delay(100);
-  digitalWrite(BUZZER_PIN, LOW);
+  tone(BUZZER_PIN, 4186, 100);
   delay(100);
   
   // lock the rocket:
@@ -283,7 +344,10 @@ void loop() {
   if(millis()-start>TIME_AFTER_START && !timeOver && start){
     timeOver = 1;
     servo.write(UNLOCK_ANGLE);
-    digitalWrite(BUZZER_PIN, HIGH);
+    //for active buzzer
+    tone(BUZZER_PIN, 4186);
+    //for passive buzzer
+    //digitalWrite(BUZZER_PIN, HIGH);
     Serial.println("Parachute opened!");
   }
   // for final program **COMMENT THIS** delay:
