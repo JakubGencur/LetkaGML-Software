@@ -57,12 +57,12 @@ TwoWire I2CSensors = TwoWire(0);
 Adafruit_MPU6050 mpu;
 
 // structure for bme sensor
-/*
+
 Adafruit_BME280 bme; // use I2C interface
 Adafruit_Sensor *bme_temp = bme.getTemperatureSensor();
 Adafruit_Sensor *bme_pressure = bme.getPressureSensor();
 Adafruit_Sensor *bme_humidity = bme.getHumiditySensor();
-*/
+
 
 // structore for servo
 Servo servo;
@@ -145,7 +145,7 @@ void setup(void) {
     */
   }
 
-  /*
+  // bme initialization
   if (!bme.begin(0x76, &I2CSensors)) {
     Serial.println(F("Could not find a valid BME280 sensor, check wiring!"));
 
@@ -157,7 +157,7 @@ void setup(void) {
     digitalWrite(BUZZER_PIN, HIGH);
     delay(500);
     digitalWrite(BUZZER_PIN, LOW);
-    delay(100);//PRI ODKOMENTOVANI DOPSAT HVEZDALOMENO
+    delay(100);*/ //PRI ODKOMENTOVANI DOPSAT HVEZDALOMENO
   }
   else{
     Serial.println("BME280 Found!");
@@ -170,9 +170,8 @@ void setup(void) {
     digitalWrite(BUZZER_PIN, HIGH);
     delay(100);
     digitalWrite(BUZZER_PIN, LOW);
-    delay(100);
+    delay(100);*/
   }
-  */
 
   
   // initialize servo
@@ -265,11 +264,11 @@ void loop() {
   /* Get new sensor events with the readings */
   sensors_event_t a, g, t_a, t, p, h;
   mpu.getEvent(&a, &g, &t_a);
-  /*
+  
   bme_temp->getEvent(&t);
   bme_pressure->getEvent(&p);
   bme_humidity->getEvent(&h);
-  */
+  
   float total = 0.0; //variable for compute abslute value of acceleration
   
   // compute the squares and add them to total
@@ -311,7 +310,7 @@ void loop() {
   Serial.print(g.gyro.z);
   Serial.println(" radians/s ");
 
-  /*
+  
   Serial.print(F("Temperature = "));
   Serial.print(t.temperature);
   Serial.println(" *C");
@@ -321,9 +320,9 @@ void loop() {
   Serial.println(" %");
 
   Serial.print(F("Pressure = "));
-  Serial.print(pressure_event.pressure);
+  Serial.print(p.pressure);
   Serial.println(" hPa");
-  */
+  
   Serial.println();
 
   // when the values are under/above the normal (start or fall of the rocket) it start to
