@@ -34,7 +34,20 @@ void BT_SD_print(const char * message){
     SerialBT.println(message);
 }
 void Serial_SD_BT_print(String message){
-    file.print(message);
+
+    file = SD_MMC.open(file_name, FILE_APPEND);
+    if(!file){
+        Serial.println("Failed to open file for appending");
+        return;
+    }
+    if(file.println(message)){
+        Serial.println("Message appended");
+    } else {
+        Serial.println("Append failed");
+    }
+    delay(10);
+    file.close();
+    delay(10);
     Serial.println(message);
     SerialBT.println(message);
 }
