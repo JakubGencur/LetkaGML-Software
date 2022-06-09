@@ -13,26 +13,45 @@
  *    D1       4
  */
 
+//přidej tyto knihovny (poslední tam je)---------------------------------------------------------------
 #include "FS.h"
 #include "SD_MMC.h"
 #include "BluetoothSerial.h"
 
+//toto už by v kodu mělo být
 #if !defined(CONFIG_BT_ENABLED) || !defined(CONFIG_BLUEDROID_ENABLED)
 #error Bluetooth is not enabled! Please run `make menuconfig` to and enable it
 #endif
 
+//tyto dvě proměnné jsou nutné, první je jméno souboru, druhý je proměnná souboru--------------------------------------------------------
 const char * file_name = "/data.txt";
 File file;
 
+//toto už máš, proměnná i není potřeba
 BluetoothSerial SerialBT;
 String BTmessage = "";
 int i=0;
 
-
+//funkce pro bluetooth/SD------------------------------------------------------------------------------------------------------------------
 void BT_SD_print(const char * message){
-    file.print(message);
+
+    file = SD_MMC.open(file_name, FILE_APPEND);
+    if(!file){
+        Serial.println("Failed to open file for appending");
+        return;
+    }
+    if(file.println(message)){
+        Serial.println("Message appended");
+    } else {
+        Serial.println("Append failed");
+    }
+    delay(10);
+    file.close();
+    delay(10);
     SerialBT.println(message);
 }
+
+//funkce pro serial/bluetooth/SD---------------------------------------------------------------------------------------------------------
 void Serial_SD_BT_print(String message){
 
     file = SD_MMC.open(file_name, FILE_APPEND);
@@ -54,9 +73,9 @@ void Serial_SD_BT_print(String message){
 
 void setup(){
     Serial.begin(115200);
-
+    // toto už máš
     SerialBT.begin("LetkaGMLRocket");
-    
+    // všchno co potřebuješ v initu je pod tímto komentem--------------------------------------------------------------------------------------
     if(!SD_MMC.begin()){
         Serial.println("Card Mount Failed");
         return;
@@ -90,16 +109,13 @@ void setup(){
     const char* mess = "new writing";
     file.println(mess);
     file.close();
+    // tady končí to co potřebuješ
 }
 
 void loop(){
+  // Takto se to používá--------------------------------------------------------------------------------------------------------
   Serial_SD_BT_print("Hello world!");
+  // a nebo takto:
+  // BT_SD_print("Hello world!");
   delay(500);
-  i++;
-  if(i%10 == 0){
-    file.close();
-    delay(10);
-    file = SD_MMC.open(file_name, FILE_WRITE);
-  }
-
 }
